@@ -1,0 +1,45 @@
+{
+  "name": "controlis",
+  "version": "1.0.0",
+  "description": "App to interface with custom PCB boards.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "watch": "nodemon --exec electron .",
+    "debug": "electron --inspect=9229 .",
+    "reset": "git reset --hard",
+    "mac-build": "electron-builder -m",
+    "win-build": "electron-builder -w --x64",
+    "mac-release": "electron-builder -m -p onTagOrDraft --arm64 --x64",
+    "win-release": "electron-builder -w -p onTagOrDraft --x64"
+  },
+  "repository": "https://github.com/vigneshuw/controlis",
+  "homepage": "https://github.com/vigneshuw/controlis",
+  "keywords": [
+    "Controlis",
+    "PCBInterface",
+    "DeviceControl"
+  ],
+  "author": "Vignesh Selvaraj",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^29.2.0",
+    "electron-builder": "^24.13.3",
+    "nodejs": "^0.0.0",
+    "nodemon": "^3.0.1"
+  },
+  "dependencies": {
+    "@abandonware/noble": "^1.9.2-26",
+    "buffer": "^6.0.3",
+    "cobs": "^0.2.1",
+    "csv": "^6.3.1",
+    "electron-log": "^4.4.8",
+    "electron-updater": "^6.1.8",
+    "fs-extra": "^11.2.0",
+    "jquery": "^3.7.1",
+    "serialport": "^12.0.0",
+    "stream-to-string": "^1.2.1",
+    "tar": "^7.1.0",
+    "usb": "^2.14.0"
+  }
+}

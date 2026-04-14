@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
+    <script src="../bootstrap/js/bootstrap.bundle.js"></script>
+
+    <!-- Plotly library -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <title>Data Acquisition</title>
+    <style>
+        body {
+            background-image: url('../images/background/energy-daq.png');
+            overflow: hidden;
+            user-select: none;
+            background-color: rgba(0, 0, 0, 0.3);
+            background-blend-mode: darken;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .data-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+        }
+
+        .data-box {
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 10px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            flex: 1;
+            margin: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<button type="button" class="btn btn-light shadow-sm position-fixed top-0 start-0 m-3" style="z-index: 1070;" onclick="goHome()">← Return</button>
+<div class="container">
+    <div class="data-container">
+        <h3 class="text-center">Live Feed</h3>
+        <div class="row">
+            <div id="statusV1" class="data-box">Voltage Phase 1: -- V</div>
+            <div id="statusV2" class="data-box">Voltage Phase 2: -- V</div>
+            <div id="statusV3" class="data-box">Voltage Phase 3: -- V</div>
+        </div>
+        <div class="row">
+            <div id="statusI1" class="data-box">Current Phase 1: -- A</div>
+            <div id="statusI2" class="data-box">Current Phase 2: -- A</div>
+            <div id="statusI3" class="data-box">Current Phase 3: -- A</div>
+        </div>
+
+        <button type="button" class="btn btn-danger" onclick="stopAEMSbleDAQ()">Stop Acquisition</button>
+
+
+    </div>
+
+</div>
+</body>
+<script src="../renderer.js"></script>
+<script src="./js/data_plotter.js"></script>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <!--Bootstrap-->
+  <link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
+  <script src="../bootstrap/js/bootstrap.bundle.js"></script>
+
+  <title>Controlis</title>
+</head>
+<style>
+  body {
+    background-image: url('../images/background/deviceSelector.png');
+    overflow: hidden;
+    user-select: none;
+    pointer-events: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: darken;
+  }
+
+  /* CSS for SVG throbbing animation */
+  @keyframes throb {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  .throb {
+    animation: throb 500ms infinite;
+  }
+
+  /* Custom CSS for positioning */
+  .overlay-container {
+    position: relative;
+    display: none; /* Initially hide the overlay */
+  }
+  .connecting-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+</style>
+<body>
+<button type="button" class="btn btn-light shadow-sm position-fixed top-0 start-0 m-3" style="z-index: 1070;" onclick="goHome()">← Return</button>
+  <div class="container-fluid">
+    <!--Header-->
+    <div class="card text-bg-dark" style="margin-bottom: 200px;">
+      <div class="card-img-overlay mx-auto">
+        <h2 class="card-title">Select Device</h2>
+        <p class="card-text">Interface with the Data Acquisition Systems.</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col text-center">
+        <button class="text-center btn btn-outline-danger" type="button" disabled>
+          <span class="spinner-grow spinner-grow-sm" aria-hidden="true"></span>
+          <span role="status" class="text-light">Searching for nearby UMI devices...</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Connecting overlay -->
+  <div class="overlay-container" id="connectingOverlay">
+    <div class="connecting-overlay">
+      <h2>Connecting...</h2>
+      <p>Please wait while we establish the connection.</p>
+    </div>
+  </div>
+
+</body>
+<script src="../renderer.js"></script>
+</html>

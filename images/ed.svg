@@ -1,0 +1,30 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Aura -->
+    <defs>
+        <radialGradient id="auraGradient" cx="50%" cy="50%" r="75%" fx="50%" fy="50%">
+            <stop offset="0%" stop-color="#ff0000" />
+            <stop offset="100%" stop-color="#00ff00" />
+        </radialGradient>
+    </defs>
+    <circle cx="100" cy="100" r="80" fill="url(#auraGradient)" opacity="0.5">
+        <animate attributeName="opacity" values="0.5; 0.8; 0.5" dur="2s" repeatCount="indefinite" />
+    </circle>
+
+    <!-- Edge Computer -->
+    <g>
+        <!-- Main Body -->
+        <rect x="50" y="50" width="100" height="100" fill="#808080" />
+
+        <!-- Inner Layer -->
+        <rect x="60" y="60" width="80" height="80" fill="#d3d3d3" />
+
+        <!-- Screen with Text "UMI" -->
+        <rect x="70" y="70" width="60" height="60" fill="#ffffff" />
+        <text x="70" y="100" font-family="Arial, sans-serif" font-size="20" fill="#000000">UMI-0</text>
+
+        <!-- Status Lights -->
+        <circle cx="100" cy="140" r="5" fill="#00ff00" /> <!-- Green Light -->
+        <circle cx="90" cy="160" r="5" fill="#ff0000" /> <!-- Red Light -->
+        <circle cx="110" cy="160" r="5" fill="#ff0000" /> <!-- Red Light -->
+    </g>
+</svg>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.css">
+    <script src="../bootstrap/js/bootstrap.bundle.js"></script>
+
+    <title>Data Acquisition</title>
+    <style>
+        body {
+            background-image: url('../images/background/energy-daq.png');
+            overflow: hidden;
+            user-select: none;
+            background-color: rgba(0, 0, 0, 0.3);
+            background-blend-mode: darken;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+<button type="button" class="btn btn-light shadow-sm position-fixed top-0 start-0 m-3" style="z-index: 1070;" onclick="goHome()">← Return</button>
+<div class="container">
+    <div class="form-container">
+        <h3 class="text-center">Configure</h3>
+        <form onsubmit="event.preventDefault(); processDAQConfiguration();">
+            <div class="mb-3">
+                <label for="saveFileName" class="form-label">Save File Name</label>
+                <input type="text" class="form-control" id="saveFileName" placeholder="must end with .bin" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="numChannels" class="form-label">Number of Channels</label>
+                <input type="number" class="form-control" id="numChannels" placeholder="8"  min="1" max="8" value="8" disabled>
+            </div>
+
+            <div class="mb-3">
+                <label for="samplingRate" class="form-label">Sampling Rate (Hz)</label>
+                <input type="number" class="form-control" id="samplingRate" placeholder="2000"  min="100" max="32000" value="2000" disabled>
+            </div>
+
+            <div class="mb-3">
+                <label for="daqDuration" class="form-label">DAQ Duration (s)</label>
+                <input type="number" class="form-control" id="daqDuration" placeholder="Until Stopped"  min="0" max="3600" value="3600" disabled>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" onsubmit="">Start Acquisition</button>
+        </form>
+    </div>
+</div>
+</body>
+<script src="../renderer.js"></script>
+</html>
