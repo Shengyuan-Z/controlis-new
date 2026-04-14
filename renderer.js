@@ -90,6 +90,25 @@ ipcRenderer.on("statusUpdated", (e, args) => {
             if (element) {
                 element.textContent = `${key.replace("status", "").replace(/([A-Z])/g, ' $1').trim()}: ${args[key]} ${key.includes("V") ? "V" : "A"}`;
             }
+
+            // Update live plots (if present on the current page)
+            if (typeof Plotly !== "undefined") {
+                const t = new Date();
+                const maxPoints = 3000;
+
+                const currentDiv = document.getElementById("current3phPlot");
+                const voltageDiv = document.getElementById("voltage3phPlot");
+
+                if (currentDiv && (key === "statusI1" || key === "statusI2" || key === "statusI3")) {
+                    const idx = key === "statusI1" ? 0 : (key === "statusI2" ? 1 : 2);
+                    Plotly.extendTraces("current3phPlot", { x: [[t]], y: [[args[key]]] }, [idx], maxPoints);
+                }
+
+                if (voltageDiv && (key === "statusV1" || key === "statusV2" || key === "statusV3")) {
+                    const idx = key === "statusV1" ? 0 : (key === "statusV2" ? 1 : 2);
+                    Plotly.extendTraces("voltage3phPlot", { x: [[t]], y: [[args[key]]] }, [idx], maxPoints);
+                }
+            }
         }
     }
 });
@@ -282,27 +301,14 @@ ipcRenderer.on("aems-calibrate-error", (event, message) => {
 Live Plots
  */
 ipcRenderer.on('receiveAEMSData', (e, data) => {
-    let data_update = {
-        y: [
-            [data.x], // Wrap x in an array
-            [data.y], // Wrap y in an array
-            [data.z]  // Wrap z in an array
-        ]
-    }
-    console.log(data);
-    // Update Plotly traces for X, Y, and Z axes
-    Plotly.extendTraces("current3phPlot", data_update, [0, 1, 2]);
+    if (typeof Plotly === "undefined") return;
+    if (!document.getElementById("current3phPlot")) return;
 
-    // Check if the data length exceeds the threshold (24000) and trim the excess
-    const maxLength = 3000;
-    const trimAmount = 1500;
-
-    // Trim old data from the plot to avoid memory issues
-    const traces = current3phPlot.data;
-    if (traces[0]["y"].length > maxLength) {
-        // Trim the X, Y, and Z data points
-        for (let i = 0; i < 3; i++) {
-            traces[i]["y"].splice(0, trimAmount);
-        }
-    }
+    const t = new Date();
+    const maxPoints = 3000;
+    const data_update = {
+        x: [[t], [t], [t]],
+        y: [[data.x], [data.y], [data.z]]
+    };
+    Plotly.extendTraces("current3phPlot", data_update, [0, 1, 2], maxPoints);
 });
