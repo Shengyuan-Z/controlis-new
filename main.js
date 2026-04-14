@@ -224,36 +224,82 @@ function createWindow() {
         let totalFiles = binFiles.length;
         let processedFiles = 0;
 
+        const FRAME_BYTES = 32;
+        const SPLIT_THRESHOLD_BYTES = 100 * 1024 * 1024; // 100MB
+        const MAX_PART_BYTES = 30 * 1024 * 1024; // 30MB
+        const CSV_HEADER = "V1,V2,V3,C1,C2,C3\n";
+
+        const alignDownToFrame = (bytes) => Math.floor(bytes / FRAME_BYTES) * FRAME_BYTES;
+
         binFiles.forEach((file) => {
             let filePath = path.join(directoryPath, file);
             let outputCSVPath = path.join(directoryPath, path.basename(file, ".BIN") + ".csv");
 
-            let fileBuffer = fs.readFileSync(filePath);
-            let dataLines = [];
-            let totalChunks = Math.floor(fileBuffer.length / 32);
+            const stats = fs.statSync(filePath);
+            const fileSizeBytes = stats.size;
+            const alignedMaxPartBytes = Math.max(FRAME_BYTES, alignDownToFrame(MAX_PART_BYTES));
 
-            for (let i = 0; i < totalChunks; i++) {
-                let chunk = fileBuffer.slice(i * 32, (i + 1) * 32);
-                let values = [];
+            // Create/overwrite output once; write header once.
+            fs.writeFileSync(outputCSVPath, CSV_HEADER);
 
-                for (let j = 0; j < 8; j++) {
-                    values.push(chunk.readInt32LE(j * 4));
+            const fd = fs.openSync(filePath, "r");
+            try {
+                let offset = 0;
+                while (offset < fileSizeBytes) {
+                    let remaining = fileSizeBytes - offset;
+                    let readBytesTarget;
+
+                    if (fileSizeBytes > SPLIT_THRESHOLD_BYTES) {
+                        readBytesTarget = Math.min(alignedMaxPartBytes, remaining);
+                    } else {
+                        // For smaller files keep legacy behavior (single pass), but still avoid reading >MAX_PART_BYTES chunks.
+                        readBytesTarget = Math.min(Math.max(alignedMaxPartBytes, alignDownToFrame(remaining)), remaining);
+                    }
+
+                    // Ensure we don't end on a partial frame unless it's truly the end (we'll ignore the tail).
+                    let readBytesAligned = alignDownToFrame(readBytesTarget);
+                    if (readBytesAligned < FRAME_BYTES) {
+                        break;
+                    }
+
+                    const buf = Buffer.allocUnsafe(readBytesAligned);
+                    const bytesRead = fs.readSync(fd, buf, 0, readBytesAligned, offset);
+                    if (bytesRead <= 0) break;
+
+                    const usableBytes = alignDownToFrame(bytesRead);
+                    const totalChunks = Math.floor(usableBytes / FRAME_BYTES);
+                    let dataLines = [];
+
+                    for (let i = 0; i < totalChunks; i++) {
+                        let chunk = buf.slice(i * FRAME_BYTES, (i + 1) * FRAME_BYTES);
+                        let values = [];
+
+                        for (let j = 0; j < 8; j++) {
+                            values.push(chunk.readInt32LE(j * 4));
+                        }
+
+                        let processedValues = [
+                            parseADCVoltage(values[0]),
+                            parseADCVoltage(values[1]),
+                            parseADCVoltage(values[2]),
+                            parseADCCurrent(values[3]),
+                            parseADCCurrent(values[4]),
+                            parseADCCurrent(values[5])
+                        ];
+
+                        dataLines.push(processedValues.join(","));
+                    }
+
+                    // Append without header for each part.
+                    if (dataLines.length > 0) {
+                        fs.appendFileSync(outputCSVPath, dataLines.join("\n") + "\n");
+                    }
+
+                    offset += usableBytes;
                 }
-
-                let processedValues = [
-                    parseADCVoltage(values[0]),
-                    parseADCVoltage(values[1]),
-                    parseADCVoltage(values[2]),
-                    parseADCCurrent(values[3]),
-                    parseADCCurrent(values[4]),
-                    parseADCCurrent(values[5])
-                ];
-
-                dataLines.push(processedValues.join(","));
+            } finally {
+                fs.closeSync(fd);
             }
-
-            // Write CSV output
-            fs.writeFileSync(outputCSVPath, "V1,V2,V3,C1,C2,C3\n" + dataLines.join("\n"));
 
             // Progress update on processed file
             processedFiles += 1;
