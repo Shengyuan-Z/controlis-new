@@ -203,25 +203,25 @@ function createWindow() {
 
     ipcMain.on("aems-dataParsing", async(event) => {
         // Open a dialog box
-        let dataParsePath = dialog.showOpenDialogSync(mainWindow, {
-            title: "Select Directory",
-            properties: ["openDirectory"],
+        const selectedPaths = dialog.showOpenDialogSync(mainWindow, {
+            title: "Select BIN file(s)",
+            properties: ["openFile", "multiSelections"],
             buttonLabel: "Select",
+            filters: [{ name: "BIN Files", extensions: ["BIN", "bin"] }],
         });
 
-        if (!dataParsePath || dataParsePath.length === 0) {
-            event.sender.send("aems-dataParsing-error", "No directory selected.");
+        if (!selectedPaths || selectedPaths.length === 0) {
+            event.sender.send("aems-dataParsing-error", "No .BIN file selected.");
             return;
         }
 
-        let directoryPath = dataParsePath[0];
-        let binFiles = fs.readdirSync(directoryPath).filter(file => file.endsWith(".BIN"));
-
-        if (binFiles.length === 0) {
-            event.sender.send("aems-dataParsing-error", "No .bin files found.");
+        const binFilePaths = selectedPaths.filter((p) => typeof p === "string" && p.toLowerCase().endsWith(".bin"));
+        if (binFilePaths.length === 0) {
+            event.sender.send("aems-dataParsing-error", "No .BIN files selected.");
             return;
         }
-        let totalFiles = binFiles.length;
+
+        let totalFiles = binFilePaths.length;
         let processedFiles = 0;
 
         const FRAME_BYTES = 32;
@@ -231,9 +231,8 @@ function createWindow() {
 
         const alignDownToFrame = (bytes) => Math.floor(bytes / FRAME_BYTES) * FRAME_BYTES;
 
-        binFiles.forEach((file) => {
-            let filePath = path.join(directoryPath, file);
-            let outputCSVPath = path.join(directoryPath, path.basename(file, ".BIN") + ".csv");
+        binFilePaths.forEach((filePath) => {
+            let outputCSVPath = path.join(path.dirname(filePath), path.basename(filePath, path.extname(filePath)) + ".csv");
 
             const stats = fs.statSync(filePath);
             const fileSizeBytes = stats.size;
@@ -306,7 +305,7 @@ function createWindow() {
             let progress = Math.floor((processedFiles / totalFiles) * 100);
 
             event.sender.send("aems-dataParsing-progress", {
-                file: file,
+                file: path.basename(filePath),
                 progress: progress,
                 processedFiles: processedFiles,
                 totalFiles: totalFiles
